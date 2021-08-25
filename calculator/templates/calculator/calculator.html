@@ -1,0 +1,34 @@
+{% extends 'calculator/base.html' %}
+{% block content %}
+
+    <section class="bg-primary text-lignt p-5">
+        <form method="post" action="#">
+            <div class="container">
+            {% csrf_token %}
+                Underlying Price    <input type="text" name="underlying-price"> <br>
+                Strike Price        <input type="text" name="strike-price"> <br>
+                Days till Maturity  <input type="text" name="time-till-maturity"> <br>
+                Volatility          <input type="text" name="volatility"> <br>
+                Interest rate       <input type="text" name="interest-rate"> <br>
+
+                Option style
+                <div class="dropdown">
+                    <label for="EU"> <input id="EU" type="radio" value='EU' name="option-style"> European </label>
+                    <label for="US"> <input id="US" type="radio" value='US' name="option-style"> American </label>
+                </div>
+                Option type
+                <div class="dropdown">
+                    <label for="call"> <input id="call" type="radio" value='call' name="option-type"> Call </label>
+                    <label for="put"> <input id="put" type="radio" value='put' name="option-type"> Put </label>
+                </div>
+
+                <input type="submit" name="calculate" value="Calculate"> <br>
+            </div>
+        </form>
+
+        <div class = "container">
+            <h2> {{fair_value}} </h2>
+        </div>
+    </section>
+
+{% endblock content %}
