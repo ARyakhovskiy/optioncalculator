@@ -3,14 +3,25 @@
 
     <section class="bg-light text-dark p-5">
         <form method="post" action="#">
-            <div class="container">
-            {% csrf_token %}
-                Underlying Price    <input type="text" name="underlying-price"> <br>
-                Strike Price        <input type="text" name="strike-price"> <br>
-                Days till Maturity  <input type="text" name="time-till-maturity"> <br>
-                Volatility          <input type="text" name="volatility"> <br>
-                Interest rate       <input type="text" name="interest-rate"> <br>
 
+            {% csrf_token %}
+        <div id="form-main" class="container">
+            <div class="row">
+              <div class="col"> Underlying Price </div>
+              <div class="col"> <input type="text" name="underlying-price"> </div>
+              <div class="w-100"></div>
+              <div class="col"> Time till Maturity </div>
+              <div class="col"> <input type="text" name="time-till-maturity"> </div>
+              <div class="w-100"></div>
+              <div class="col"> Strike price </div>
+                <div class="col"> <input type="text" name="strike-price"> </div>
+              <div class="w-100"></div>
+              <div class="col"> Volatility </div>
+              <div class="col"> <input type="text" name="volatility"> </div>
+              <div class="w-100"></div>
+              <div class="col"> Interest rate </div>
+              <div class="col"> <input type="text" name="interest-rate">  </div>
+            </div>
                 Option style
                 <div class="dropdown">
                     <label for="EU"> <input id="EU" type="radio" value='EU' name="option-style"> European </label>
@@ -26,14 +37,41 @@
                     <label for="Analytical"> <input id="Analytical" type="radio" value='analytical' name="method"> Analytical </label>
                     <label for="FDM"> <input id="FDM" type="radio" value='FDM' name="method"> Finite Difference Method </label>
                 </div>
-
-
                 <input type="submit" name="calculate" value="Calculate"> <br>
             </div>
         </form>
 
         <div class = "container">
             <h2> {{fair_value}} </h2>
+        </div>
+
+        <div id="greeks" class = "greeks-table">
+            <table class="table">
+              <thead>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Delta</td>
+                  <td>{{ greeks.delta }}</td>
+                </tr>
+                <tr>
+                  <td> Gamma </td>
+                  <td> {{ greeks.gamma }}</td>
+                </tr>
+                <tr>
+                  <td> Vega </td>
+                  <td> {{ greeks.vega }}</td>
+                </tr>
+                <tr>
+                  <td> Theta </td>
+                  <td> {{ greeks.theta }}</td>
+                </tr>
+                <tr>
+                  <td> Rho </td>
+                  <td> {{ greeks.rho }}</td>
+                </tr>
+              </tbody>
+            </table>
         </div>
     </section>
 

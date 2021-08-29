@@ -35,6 +35,47 @@ def get_fair_value(asset_mesh, option_values, spot_price):
         return option_values[idx]
 
 
+def get_delta(asset_mesh, option_values, spot_price):
+    if spot_price < 0 or spot_price > asset_mesh[-1]:
+        raise ValueError('Spot price is outside of solution range')
+    idx = (np.abs(asset_mesh-spot_price)).argmin()
+
+    if spot_price < asset_mesh[idx]:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        weight_left = (spot_price-asset_mesh[idx-1])/ds
+        weight_right = 1-weight_left
+        delta_left = 0.5*(option_values[idx] - option_values[idx-2])/ds
+        delta_right = 0.5*(option_values[idx+1] - option_values[idx-1])/ds
+        return weight_left*delta_right+weight_right*delta_left
+    elif spot_price > asset_mesh[idx]:
+        ds = asset_mesh[idx+1] - asset_mesh[idx]
+        weight_left = (spot_price-asset_mesh[idx])/ds
+        weight_right = 1-weight_left
+        delta_left = 0.5*(option_values[idx+1] - option_values[idx-1])/ds
+        delta_right = 0.5*(option_values[idx+2] - option_values[idx])/ds
+        return weight_left*delta_right+weight_right*delta_left
+    else:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        return 0.5*(option_values[idx+1]-option_values[idx-1])/ds
+
+
+
+def get_gamma():
+    return 0.0
+
+
+def get_theta():
+    return 0.0
+
+
+def get_vega():
+    return 0.0
+
+
+def get_rho():
+    return 0.0
+
+
 def run_solver(spot_price, strike_price, time_till_maturity, volatility, interest_rate, option_type='call',
                           option_style='EU', dividends=np.array([]), dividend_dates=np.array([])):
     num_asset_steps = 100
@@ -74,7 +115,15 @@ def run_solver(spot_price, strike_price, time_till_maturity, volatility, interes
     print(rendered_option_prices)
     rendered_payoff = intrinsic_value(rendered_spot_prices, strike_price, option_type).tolist()
     print(rendered_payoff)
-    return fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff
+
+    greeks = {
+        'delta': get_delta(asset_prices, option_value[-1, :], spot_price),
+        'gamma': get_gamma(),
+        'vega': get_vega(),
+        'theta': get_theta(),
+        'rho': get_rho(),
+    }
+    return fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff, greeks
 
 def thomas_method(a, b, c, d, p):
     nf = len(d)  # number of equations

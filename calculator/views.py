@@ -9,11 +9,20 @@ def index(request):
     fair_prices = []
     payoff = []
 
+    greeks = {
+        'delta': 0.0,
+        'gamma': 0.0,
+        'theta': 0.0,
+        'vega': 0.0,
+        'rho': 0.0
+    }
+
     context = {
         'fair_value': fair_value,
         'spot_prices': spot_prices,
         'fair_prices': fair_prices,
-        'payoff': payoff
+        'payoff': payoff,
+        'greeks': greeks,
     }
 
     if request.method == 'POST':
@@ -37,10 +46,11 @@ def index(request):
                     'fair_value': fair_value,
                     'spot_prices': spot_prices,
                     'fair_prices': fair_prices,
-                    'payoff': payoff
+                    'payoff': payoff,
+                    'greeks': greeks,
                 }
             elif method == "FDM":
-                fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff = run_solver(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
+                fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff, greeks = run_solver(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
                                                option_style=option_style, option_type=option_type)
 
                 print(rendered_spot_prices_str)
@@ -51,7 +61,8 @@ def index(request):
                     'fair_value': fair_value,
                     'spot_prices': rendered_spot_prices_str,
                     'fair_prices': rendered_option_prices,
-                    'payoff': rendered_payoff
+                    'payoff': rendered_payoff,
+                    'greeks': greeks
                 }
                 print(context)
 
