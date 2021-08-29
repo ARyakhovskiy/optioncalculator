@@ -1,7 +1,7 @@
 {% extends 'calculator/base.html' %}
 {% block content %}
 
-    <section class="bg-primary text-lignt p-5">
+    <section class="bg-light text-dark p-5">
         <form method="post" action="#">
             <div class="container">
             {% csrf_token %}
@@ -21,6 +21,12 @@
                     <label for="call"> <input id="call" type="radio" value='call' name="option-type"> Call </label>
                     <label for="put"> <input id="put" type="radio" value='put' name="option-type"> Put </label>
                 </div>
+                Method
+                <div class="dropdown">
+                    <label for="Analytical"> <input id="Analytical" type="radio" value='analytical' name="method"> Analytical </label>
+                    <label for="FDM"> <input id="FDM" type="radio" value='FDM' name="method"> Finite Difference Method </label>
+                </div>
+
 
                 <input type="submit" name="calculate" value="Calculate"> <br>
             </div>
@@ -31,4 +37,91 @@
         </div>
     </section>
 
-{% endblock content %}
+    <div id="div1" class="option-chart-container" style="position: relative; height:20vh; width:40vw" >
+        <canvas id="option_price_chart" width="200" height="100"></canvas>
+    </div>
+
+    <div id="div2" class="greek-chart-container" style="position: relative; height:20vh; width:40vw" >
+        <canvas id="greek_chart" width="200" height="100"></canvas>
+    </div>
+
+    {% endblock content %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+            var ctx = document.getElementById('option_price_chart').getContext('2d');
+            var option_price_chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['147.0', '148.0', '149.0', '150.0', '151.0', '152.0', '153.0'],
+                    datasets: [{
+                        label: 'Fair price',
+                        data: {{ fair_prices }},
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    },
+
+                       {
+                        label: 'Payoff',
+                        data: {{ payoff }},
+                        fill: false,
+                        borderColor: 'rgb(230, 0, 0)',
+                        backgroundColor: 'rgb(230, 0, 0)',
+                        tension: 0.1
+                    }
+
+                    ]
+
+
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var ctx = document.getElementById('greek_chart').getContext('2d');
+            var greek_chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['147.0', '148.0', '149.0', '150.0', '151.0', '152.0', '153.0'],
+                    datasets: [{
+                        label: 'Fair price',
+                        data: {{ fair_prices }},
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    },
+
+                       {
+                        label: 'Payoff',
+                        data: {{ payoff }},
+                        fill: false,
+                        borderColor: 'rgb(230, 0, 0)',
+                        backgroundColor: 'rgb(230, 0, 0)',
+                        tension: 0.1
+                    }
+
+                    ]
+
+
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+{% endblock script %}
