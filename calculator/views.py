@@ -37,7 +37,7 @@ def index(request):
             option_type = request.POST['option-type']
             method = request.POST['method']
 
-            print(black_scholes_formula(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
+            print('Analytical value', black_scholes_formula(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
                                         option_style=option_style, option_type=option_type))
             if method == "Analytical":
                 fair_value = black_scholes_formula(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
@@ -50,12 +50,17 @@ def index(request):
                     'greeks': greeks,
                 }
             elif method == "FDM":
+                print('Spot price: ', spot_price)
                 fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff, greeks = run_solver(spot_price, strike_price, time_till_maturity, volatility, interest_rate,
                                                option_style=option_style, option_type=option_type)
 
-                print(rendered_spot_prices_str)
-                print(rendered_option_prices)
-                print(rendered_payoff)
+                # print(rendered_spot_prices_str)
+                # /print(rendered_option_prices)
+                # print(rendered_payoff)
+
+                print('Fair value FDM: ', fair_value)
+
+                print('Context spot_prices: ',rendered_spot_prices_str)
 
                 context = {
                     'fair_value': fair_value,

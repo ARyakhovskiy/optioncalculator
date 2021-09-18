@@ -59,21 +59,96 @@ def get_delta(asset_mesh, option_values, spot_price):
         return 0.5*(option_values[idx+1]-option_values[idx-1])/ds
 
 
+def get_gamma(asset_mesh, option_values, spot_price):
+    if spot_price < 0 or spot_price > asset_mesh[-1]:
+        raise ValueError('Spot price is outside of solution range')
+    idx = (np.abs(asset_mesh-spot_price)).argmin()
 
-def get_gamma():
-    return 0.0
+    if spot_price < asset_mesh[idx]:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        weight_left = (spot_price-asset_mesh[idx-1])/ds
+        weight_right = 1-weight_left
+        gamma_left = (option_values[idx] - 2 * option_values[idx-1] + option_values[idx-2])/ds/ds
+        gamma_right = (option_values[idx+1] - 2 * option_values[idx] + option_values[idx-1])/ds/ds
+        return weight_left*gamma_right+weight_right*gamma_left
+    elif spot_price > asset_mesh[idx]:
+        ds = asset_mesh[idx+1] - asset_mesh[idx]
+        weight_left = (spot_price-asset_mesh[idx])/ds
+        weight_right = 1-weight_left
+        gamma_left = (option_values[idx+1] - 2 * option_values[idx] + option_values[idx-1])/ds/ds
+        gamma_right = (option_values[idx+2] - 2 * option_values[idx+1] + option_values[idx])/ds/ds
+        return weight_left*gamma_right+weight_right*gamma_left
+    else:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        return (option_values[idx+1] - 2 * option_values[idx] + option_values[idx-1])/ds/ds
 
 
-def get_theta():
-    return 0.0
+def get_theta(asset_mesh, dt, option_values, spot_price):
+    if spot_price < 0 or spot_price > asset_mesh[-1]:
+        raise ValueError('Spot price is outside of solution range')
+    idx = (np.abs(asset_mesh-spot_price)).argmin()
+
+    if spot_price < asset_mesh[idx]:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        weight_left = (spot_price-asset_mesh[idx-1])/ds
+        weight_right = 1-weight_left
+        theta_left = (option_values[-1, idx-1] - option_values[-2, idx-1])/dt
+        theta_right = (option_values[-1, idx] - option_values[-2, idx])/dt
+        return weight_left*theta_right+weight_right*theta_left
+    elif spot_price > asset_mesh[idx]:
+        ds = asset_mesh[idx+1] - asset_mesh[idx]
+        weight_left = (spot_price-asset_mesh[idx])/ds
+        weight_right = 1-weight_left
+        theta_left = (option_values[-1, idx] - option_values[-2, idx])/dt
+        theta_right = (option_values[-1, idx+1] - option_values[-2, idx+1])/dt
+        return weight_left*theta_right+weight_right*theta_left
+    else:
+        return (option_values[-1, idx]-option_values[-2, idx])/dt
 
 
-def get_vega():
-    return 0.0
+def get_vega(asset_mesh, option_values, option_values_sigma_shift, sigma_shift, spot_price):
+    if spot_price < 0 or spot_price > asset_mesh[-1]:
+        raise ValueError('Spot price is outside of solution range')
+    idx = (np.abs(asset_mesh-spot_price)).argmin()
 
+    if spot_price < asset_mesh[idx]:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        weight_left = (spot_price-asset_mesh[idx-1])/ds
+        weight_right = 1-weight_left
+        vega_left = (option_values_sigma_shift[idx-1] - option_values[idx-1])/sigma_shift
+        vega_right = (option_values_sigma_shift[idx] - option_values[idx])/sigma_shift
+        return weight_left*vega_right+weight_right*vega_left
+    elif spot_price > asset_mesh[idx]:
+        ds = asset_mesh[idx+1] - asset_mesh[idx]
+        weight_left = (spot_price-asset_mesh[idx])/ds
+        weight_right = 1-weight_left
+        vega_left = (option_values_sigma_shift[idx] - option_values[idx])/sigma_shift
+        vega_right = (option_values_sigma_shift[idx+1] - option_values[idx+1])/sigma_shift
+        return weight_left*vega_right+weight_right*vega_left
+    else:
+        return (option_values_sigma_shift[idx] - option_values[idx])/sigma_shift
 
-def get_rho():
-    return 0.0
+def get_rho(asset_mesh, option_values, option_values_r_shift, r_shift, spot_price):
+    if spot_price < 0 or spot_price > asset_mesh[-1]:
+        raise ValueError('Spot price is outside of solution range')
+    idx = (np.abs(asset_mesh-spot_price)).argmin()
+
+    if spot_price < asset_mesh[idx]:
+        ds = asset_mesh[idx]-asset_mesh[idx-1]
+        weight_left = (spot_price-asset_mesh[idx-1])/ds
+        weight_right = 1-weight_left
+        rho_left = (option_values_r_shift[idx-1] - option_values[idx-1])/r_shift
+        rho_right = (option_values_r_shift[idx] - option_values[idx])/r_shift
+        return weight_left*rho_right+weight_right*rho_left
+    elif spot_price > asset_mesh[idx]:
+        ds = asset_mesh[idx+1] - asset_mesh[idx]
+        weight_left = (spot_price-asset_mesh[idx])/ds
+        weight_right = 1-weight_left
+        rho_left = (option_values_r_shift[idx] - option_values[idx])/r_shift
+        rho_right = (option_values_r_shift[idx+1] - option_values[idx+1])/r_shift
+        return weight_left*rho_right+weight_right*rho_left
+    else:
+        return (option_values_r_shift[idx] - option_values[idx])/r_shift
 
 
 def run_solver(spot_price, strike_price, time_till_maturity, volatility, interest_rate, option_type='call',
@@ -90,8 +165,8 @@ def run_solver(spot_price, strike_price, time_till_maturity, volatility, interes
     maxBC = 'd2Vds2'
     # div_dates =  [dt.datetime(2021, 7, 21, 0, 0, 0, 0),
     #              dt.datetime(2021, 7, 28, 0, 0, 0, 0)]
-    dividend_timenodes = [8, 41, 81, 121, 161]
-    # dividend_timenodes = []
+    #dividend_timenodes = [8, 41, 81, 121, 161]
+    dividend_timenodes = []
 
     asset_prices = asset_prices_uniform(3 * E, num_asset_steps)
 
@@ -116,12 +191,27 @@ def run_solver(spot_price, strike_price, time_till_maturity, volatility, interes
     rendered_payoff = intrinsic_value(rendered_spot_prices, strike_price, option_type).tolist()
     print(rendered_payoff)
 
+    sigma_shift = max(1e-04, 0.01*volatility)
+    r_shift = max(1e-04, 0.01*r)
+
+    option_value_sigma_shift = rannacher_timestepping(asset_prices, E, volatility+sigma_shift, volatility_model,
+                                                r, T, nt, theta=0.5,
+                                                rannacher_steps=200, option_type=type, option_style=style,
+                                                dividend_dates=dividend_timenodes, dividend_function=div_func)
+
+    option_value_r_shift = rannacher_timestepping(asset_prices, E, volatility, volatility_model,
+                                                r+r_shift, T, nt, theta=0.5,
+                                                rannacher_steps=200, option_type=type, option_style=style,
+                                                dividend_dates=dividend_timenodes, dividend_function=div_func)
+
+    dt = T/nt
+
     greeks = {
         'delta': get_delta(asset_prices, option_value[-1, :], spot_price),
-        'gamma': get_gamma(),
-        'vega': get_vega(),
-        'theta': get_theta(),
-        'rho': get_rho(),
+        'gamma': get_gamma(asset_prices, option_value[-1, :], spot_price),
+        'vega': get_vega(asset_prices, option_value[-1, :], option_value_sigma_shift[-1, :], sigma_shift, spot_price),
+        'theta': get_theta(asset_prices, dt, option_value, spot_price),
+        'rho': get_vega(asset_prices, option_value[-1, :], option_value_r_shift[-1, :], r_shift, spot_price),
     }
     return fair_value, rendered_spot_prices_str, rendered_option_prices, rendered_payoff, greeks
 
