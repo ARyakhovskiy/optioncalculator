@@ -33,6 +33,7 @@ def index(request):
             volatility = float(request.POST['volatility'])
             time_till_maturity = float(request.POST['time-till-maturity'])
             interest_rate = float(request.POST['interest-rate'])
+            dividend_yield = float(request.POST['dividend-yield'])
             option_style = request.POST['option-style']
             option_type = request.POST['option-type']
             method = request.POST['method']
