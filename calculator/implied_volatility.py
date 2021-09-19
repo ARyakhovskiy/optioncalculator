@@ -1,17 +1,14 @@
 import numpy as np
 import scipy.optimize as sc
 from scipy.misc import derivative
-from bs_volatility_models import constant_volatility
-
-import bs_utilities as bsu
-import bs_solver as bss
-
+from . bs_volatility_models import constant_volatility
+from . bs_solver import asset_prices_uniform, rannacher_timestepping
 
 def make_v_of_sigma_function(method, S, T, r, K, option_type='call', option_style='EU', div_values=[], div_dates=[]):
     def v_of_sigma(sigma):
-        asset_prices = bss.asset_prices_uniform(2*K, 100)
+        asset_prices = asset_prices_uniform(2*K, 100)
         nt = 100
-        option_values = bss.rannacher_timestepping(asset_prices, K, sigma, constant_volatility,
+        option_values = rannacher_timestepping(asset_prices, K, sigma, constant_volatility,
                                                    r, T, nt, theta=0.5, rannacher_steps=100,
                                                   option_type=option_type, option_style=option_style,
                                                   dividend_dates=div_dates, dividend_function=div_values)
@@ -23,10 +20,10 @@ def make_v_of_sigma_function(method, S, T, r, K, option_type='call', option_styl
     return v_of_sigma
 
 
-def implied_volatility(market_price, asset_price, T, r, strike_price, sigma0, tolerance,
+def solve_implied_volatility(market_price, asset_price, T, r, strike_price, sigma0, tolerance,
                        option_type='call', option_style='EU',
                        div_values=[], div_dates=[]):
-    solution = bss.rannacher_timestepping
+    solution = rannacher_timestepping
 
     def target_func(sigma):
         v_of_sigma = make_v_of_sigma_function(solution, asset_price, T, r,
