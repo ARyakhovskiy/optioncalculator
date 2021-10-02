@@ -134,4 +134,8 @@ def implied_volatility(request):
             else:
                 raise ValueError("Unknown method")
     return render(request, 'calculator/implied_volatility.html', context)
+
+
+def grid_test(request):
+    return render(request, 'calculator/result.html')
 # Create your views here.

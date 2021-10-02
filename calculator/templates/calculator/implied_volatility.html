@@ -1,51 +1,50 @@
 {% extends 'calculator/base.html' %}
 {% block content %}
 
-    <section class="bg-light text-dark p-5">
-        <form method="post" action="#">
+<form method="post" action="#">
 
-            {% csrf_token %}
-        <div id="form-main" class="container">
-            <div class="row">
-              <div class="col"> Underlying Price </div>
-              <div class="col"> <input type="text" name="underlying-price"> </div>
-              <div class="w-100"></div>
-              <div class="col"> Time till Maturity </div>
-              <div class="col"> <input type="text" name="time-till-maturity"> </div>
-              <div class="w-100"></div>
-              <div class="col"> Strike price </div>
-                <div class="col"> <input type="text" name="strike-price"> </div>
-              <div class="w-100"></div>
-              <div class="col"> Market price </div>
-              <div class="col"> <input type="text" name="market-price"> </div>
-              <div class="w-100"></div>
-              <div class="col"> Interest rate </div>
-              <div class="col"> <input type="text" name="interest-rate">  </div>
-                <div class="w-100"></div>
-              <div class="col"> Dividend yield </div>
-              <div class="col"> <input type="text" name="dividend-yield">  </div>
-            </div>
-                Option style
-                <div class="dropdown">
-                    <label for="EU"> <input id="EU" type="radio" value='EU' name="option-style"> European </label>
-                    <label for="US"> <input id="US" type="radio" value='US' name="option-style"> American </label>
-                </div>
-                Option type
-                <div class="dropdown">
-                    <label for="call"> <input id="call" type="radio" value='call' name="option-type"> Call </label>
-                    <label for="put"> <input id="put" type="radio" value='put' name="option-type"> Put </label>
-                </div>
-                Method
-                <div class="dropdown">
-                    <label for="Analytical"> <input id="Analytical" type="radio" value='analytical' name="method"> Analytical </label>
-                    <label for="FDM"> <input id="FDM" type="radio" value='FDM' name="method"> Finite Difference Method </label>
-                </div>
-                <input type="submit" name="calculate" value="Calculate"> <br>
-            </div>
-        </form>
-
-        <div class = "container">
-            <h2> {{implied_volatility}} </h2>
+    {% csrf_token %}
+    <div id="form-main" class="container">
+        <div class="row">
+        <div class="col"> Underlying Price </div>
+        <div class="col"> <input type="text" name="underlying-price"> </div>
+        <div class="w-100"></div>
+        <div class="col"> Time till Maturity </div>
+        <div class="col"> <input type="text" name="time-till-maturity"> </div>
+        <div class="w-100"></div>
+        <div class="col"> Strike price </div>
+        <div class="col"> <input type="text" name="strike-price"> </div>
+        <div class="w-100"></div>
+        <div class="col"> Market price </div>
+        <div class="col"> <input type="text" name="market-price"> </div>
+        <div class="w-100"></div>
+        <div class="col"> Interest rate </div>
+        <div class="col"> <input type="text" name="interest-rate">  </div>
+        <div class="w-100"></div>
+        <div class="col"> Dividend yield </div>
+        <div class="col"> <input type="text" name="dividend-yield">  </div>
+    </div>
+        Option style
+        <div class="dropdown">
+            <label for="EU"> <input id="EU" type="radio" value='EU' name="option-style"> European </label>
+            <label for="US"> <input id="US" type="radio" value='US' name="option-style"> American </label>
         </div>
+        Option type
+        <div class="dropdown">
+            <label for="call"> <input id="call" type="radio" value='call' name="option-type"> Call </label>
+            <label for="put"> <input id="put" type="radio" value='put' name="option-type"> Put </label>
+        </div>
+        Method
+        <div class="dropdown">
+            <label for="Analytical"> <input id="Analytical" type="radio" value='analytical' name="method"> Analytical </label>
+            <label for="FDM"> <input id="FDM" type="radio" value='FDM' name="method"> Finite Difference Method </label>
+        </div>
+        <input type="submit" name="calculate" value="Calculate"> <br>
+    </div>
+</form>
 
-    {% endblock content %}
+<div class = "container">
+    <h3> Implied volatility: {{implied_volatility}} </h3>
+</div>
+
+{% endblock content %}
